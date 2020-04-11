@@ -32,7 +32,7 @@
                 :key="i"
                 @click="applySearch(content)"
             >
-                {{ content.title || content.name}}
+                {{ content.title || content.name}} | {{content.id}}
             </li>
         </ul>
     </div>

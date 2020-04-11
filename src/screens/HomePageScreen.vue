@@ -11,9 +11,7 @@
                     <p class="SectionTitleChild">
                         {{category.startDate}} {{category.endDate ? ('- ' + category.endDate) : '' }}
                     </p>
-                    <Icon icon="eye-off" :size="20" v-if="category.status === 'expired'" class="SectionTitleChild"/>
-                    <Icon icon="eye" :size="20" v-if="category.status === 'active'" class="SectionTitleChild"/>
-                    <Icon icon="clock" :size="20" v-if="category.status === 'programmed'" class="SectionTitleChild"/>
+                    <Status :item="category" class="SectionTitleChild"/>
                 </div>
                 
                 <div class="SliderSection">
@@ -25,7 +23,7 @@
 </template>
 
 <script>
-import { Slider, Header, Icon } from '@/components'
+import { Slider, Header, Status } from '@/components'
 import utils from '@/utils/utils'
 
 export default {
@@ -33,7 +31,7 @@ export default {
     components: {
         Slider,
         Header,
-        Icon
+        Status
     },
     data () {
         return {

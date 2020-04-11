@@ -4,68 +4,46 @@
             <Header :home="false"
                 :isContent="true"
                 :item="content"
-                :handleClickItem="handleClickItem"
                 :saveItem="saveItem"
                 :deleteItem="deleteItem"/>
 
-            <div class="Information">
-                <div class="Block">
-                    <div>
-                        <p>Título</p>
-                        <input v-model="content.title" type="text" class="Input">
-                    </div>
-                    <div>
-                        <p>Tipo</p>
-                        <select v-model="content.type" class="Input">
-                            <option v-for="(type, i) in contentTypes" 
-                                :key="i"
-                                :value="type.value">{{type.option}}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <p>Género</p>
-                        <input v-model="content.genre" type="text" class="Input">
-                    </div>
-                    <div>
-                        <p>Duración</p>
-                        <input v-model="content.duration" type="number" class="Input">
+            <DetailEdition :content="content"/>
+            
+            <div class="ExternalSection">
+                <div class="ExternalSectionChild">
+                    <DetailHeader :filters="filtersCategory"
+                        :filter="filterCategories"
+                        title="Categorías"/>
+                    <div class="CategoryBox">
+                        <div v-for="(category) in filteredCategories" :key="category.name" class="CategoryItem">
+                            <Icon icon="check-square" :size="20" v-if="category.selected" class="CategoryItemChildSelected"
+                                :clickable="true" @click="selectCategory(category)"
+                            />
+                            <Icon icon="square" :size="20" v-if="!category.selected" class="CategoryItemChild"
+                                :clickable="true" @click="selectCategory(category)"
+                            />
+                            <p class="CategoryItemChild">{{category.fullName}}</p>
+                            <Status :item="category" class="CategoryItemChild"/>
+                        </div>
                     </div>
                 </div>
-                <div class="Block">
-                    <div>
-                        <p>Clasificación</p>
-                        <select v-model="content.parentalRating" class="Input">
-                            <option v-for="(rating, i) in parentalRatings" 
-                                :key="i"
-                                :value="rating">{{rating}}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <p>Año</p>
-                        <input v-model="content.year" type="number" class="Input">
-                    </div>
-                    <div>
-                        <p>País</p>
-                        <input v-model="content.country" type="text" class="Input">
-                    </div>
-                    <div>
-                        <p>Descripción</p>
-                        <textarea rows="4" cols="50" v-model="content.description" class="BigInput"></textarea>
+                <div class="ExternalSectionChild">
+                    <DetailHeader :filters="filtersVodEvent"
+                        :filter="filterVodEvents"
+                        title="Eventos"/>
+                    <div class="VodEventBox">
+                        <div v-for="(vodEvent, i) in filteredVodEvents" :key="i" class="VodEventItem">
+                            <Icon icon="check-square" :size="20" v-if="vodEvent.selected" class="CategoryItemChildSelected"
+                                :clickable="true" />
+                            <Icon icon="square" :size="20" v-if="!vodEvent.selected" class="VodEventItemChild"
+                                :clickable="true" />
+                            <date-pick v-model="vodEvent.windowStartTime" class="DatePicker" :editable="vodEvent.editable"></date-pick>
+                            <date-pick v-model="vodEvent.windowStartTime" class="DatePicker" :editable="vodEvent.editable"></date-pick>
+                            <Status :item="vodEvent" class="VodEventItemChild"/>
+                        </div>
                     </div>
                 </div>
-                <div class="Block" v-if="content.type === 'episode'">
-                    <div>
-                        <p>Serie Id</p>
-                        <input v-model="content.masterId" type="number" class="Input">
-                    </div>
-                    <div>
-                        <p>#Episodio</p>
-                        <input v-model="content.episodeNumber" type="number" class="Input">
-                    </div>
-                    <div>
-                        <p>#Temporada</p>
-                        <input v-model="content.seasonNumber" type="number" class="Input">
-                    </div>
+                <div class="ExternalSectionChild">
                 </div>
             </div>
         </div>
@@ -73,26 +51,46 @@
 </template>
 
 <script>
-import { Header } from '@/components'
+import { DetailHeader,DetailEdition, Header, Icon, Status } from '@/components'
 import utils from '@/utils/utils'
+import api from '@/utils/api'
 //import moment from 'moment'
-// import DatePick from 'vue-date-pick';
-// import "@/theme/DataPicker.css";
+import DatePick from 'vue-date-pick';
+import "@/theme/DataPicker.css";
 
 export default {
     name: 'DetailScreen',
     components: {
+        DetailHeader,
+        DetailEdition,
         Header,
-        // DatePick
+        Icon,
+        Status,
+        DatePick
     },
     computed: {
-        videoID () {
+        contentId () {
             return this.$router.history.current.params.id
         }
     },
     data () {
         return {
             content: {},
+            categories: [],
+            filteredCategories: [],
+            contentCategories: [],
+            contentVodEvents: [],
+            filteredVodEvents: [],
+            filtersCategory: {
+                select: false,
+                active: false,
+                programmed: false
+            },
+            filtersVodEvent: {
+                select: false,
+                active: false,
+                programmed: false
+            },
             contentTypes: [{
                 option: 'Película',
                 value: 'movie'
@@ -124,18 +122,57 @@ export default {
         }
     },
     methods: {
-         handleClickItem(param) {
-             console.log(param)
-            //this.content.contents.push(param)
-        },
         async fetchResult () {
-            this.content = await utils.getDetailScreenInfo(this.videoID);
+            if (this.contentId) {
+                this.content = await utils.getDetailScreenInfo(this.contentId);
+                this.contentCategories = (await api.getContentCategories(this.contentId)).items;
+                this.contentVodEvents = await utils.getContentVodEvents(this.contentId);
+            }
+
+            this.categories = (await utils.searchCategory('')).map((category) => {
+                const isInContent = this.contentCategories.find((ref) => {
+                    return category.id === ref.categoryId;
+                });
+
+                category.fullName = category.name + ' | ' + category.id;
+                category.selected = !!isInContent;
+
+                return category;
+            });
+
+            this.filteredCategories = this.categories;
+            this.filteredVodEvents = this.contentVodEvents;
         },
         async saveItem (content) {
             console.log(content)
         },
         async deleteItem (content) {
             console.log(content)
+        },
+        selectCategory (category) {
+            category.selected = !category.selected ? true : false;
+            category.name += '.';
+        },
+        filterCategories (filter) {
+            console.log(filter)
+            this.filtersCategory[filter] = !this.filtersCategory[filter];
+
+            const filtersDeactivated = !this.filtersCategory.select &&
+                 !this.filtersCategory.active &&  !this.filtersCategory.programmed;
+                
+            this.filteredCategories = utils.filter(
+                filtersDeactivated, this.filtersCategory,
+                this.filteredCategories, this.categories)
+        },
+        filterVodEvents (filter) {
+            this.filtersVodEvent[filter] = !this.filtersVodEvent[filter];
+
+            const filtersDeactivated = !this.filtersVodEvent.select &&
+                 !this.filtersVodEvent.active &&  !this.filtersVodEvent.programmed;
+                
+            this.filteredVodEvents = utils.filter(
+                filtersDeactivated, this.filtersVodEvent,
+                this.filteredVodEvents, this.contentVodEvents)
         }
     },
     async mounted () {
@@ -153,55 +190,61 @@ export default {
         z-index: 1;
         .Title {
             padding: 20px 50px;
-        }  
-        .Information {
-            padding: 50px;
-            .Block {
-                div{
-                    width: 350px;
-                    padding: 20px 10px;
-                    height: 50px;
-                    display: inline-block;
-                }
-                .Input{
-                    padding: 5px;
-                    min-height: 35px;
-                    height: 35px;
-                    width: 300px;
-                    border: 1px solid $gray-04;
+        } 
+        .ExternalSection {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            margin: 0px 60px;
+            grid-row-gap: 30px;
+            grid-column-gap: 30px;
+            .ExternalSectionChild {
+                height: 450px;
+                .CategoryBox {
+                    border: 1px solid $black-light;
                     border-radius: 4px;
-                    background: transparent;
-                    color: $body-color;
-                    font-size: 14px;
-                    font-weight: 400;
-                    transition: border-color 0.5s ease-in-out;
+                    height: 400px;
+                    overflow-y: scroll;
+                    .CategoryItem{
+                        height: 40px;
+                        .CategoryItemChild{
+                            display: inline-block;
+                            margin-left: 10px;
+                        }
+                        .CategoryItemChildSelected {
+                            display: inline-block;
+                            margin-left: 10px;
+                            color:$success
+                        }
+                        p {
+                            margin-top: 10px;
+                        }
+                    }
                 }
-                .Input[type=number]::-webkit-inner-spin-button {
-                    -webkit-appearance: none;
-                }
-                .Input:focus{
-                    outline: none;
-                }
-                .BigInput{
-                    padding: 0px 5px;
-                    min-height: 50px;
-                    width: 300px;
-                    border: 1px solid $gray-04;
+                .VodEventBox {
+                    height: 400px;
+                    overflow-y: scroll;
+                    border: 1px solid $black-light;
                     border-radius: 4px;
-                    background: transparent;
-                    color: $body-color;
-                    font-size: 14px;
-                    font-weight: 400;
-                    transition: border-color 0.5s ease-in-out;
-                }
-                .BigInput:focus{
-                    outline: none;
-                }
-                p{
-                    padding: 10px;
+                    
+                    .VodEventItem{
+                        height: 40px;
+                        .VodEventItemChild{
+                            display: inline-block;
+                            margin-left: 10px;
+                        }
+                        .DatePicker{
+                            display: inline-block;
+                            margin-left: 10px;
+                            margin-top: 10px;
+                            border: 1px solid $gray-04;
+                            border-radius: 4px;
+                            background: transparent;
+                            padding: 5px;
+                        }
+                    }
                 }
             }
-        }       
+        }
     }
 }
 </style>

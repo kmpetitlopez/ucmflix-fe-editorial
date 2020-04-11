@@ -98,9 +98,9 @@ export default {
     },
 
     async getDetailScreenInfo(id) {
-        const content = await api.getContent(id);
-        content.imageUrl = this.getImageUrl(id);
-        return content;
+        const content = await api.getContent(id),
+            tmpContent = await this.completeContentInfo([content]);
+        return tmpContent[0];
     },
 
     async searchContent(title) {
@@ -111,6 +111,12 @@ export default {
 
     async searchCategory(name) {
         const categories = (await api.getCategories({name})).items;
+
+        for (const category of categories) {
+            category.status = this.getStatus(category.startDate, category.endDate);
+            category.startDate = this.formatDate(category.startDate);
+            category.endDate = this.formatDate(category.endDate);
+        }
 
         return categories;
     },
@@ -192,6 +198,55 @@ export default {
         if (category && category.id) {
             await api.deleteCategory(category.id);
         }
+    },
+
+    async getContentVodEvents(id) {
+        const vodEvents = (await api.getContentVodEvents(id)).items;
+
+        for (const vodEvent  of vodEvents) {
+            vodEvent.selected = false;
+            vodEvent.editable = false;
+            vodEvent.status = this.getStatus(vodEvent.windowStartTime, vodEvent.windowEndTime);
+            vodEvent.windowStartTime = this.formatDate(vodEvent.windowStartTime);
+            vodEvent.windowEndTime = this.formatDate(vodEvent.windowEndTime);
+        }
+
+        return vodEvents;
+    },
+
+    filter (filtersDeactivated, filters, filteredItems = [], items = []) {        
+        if (filtersDeactivated) {
+            filteredItems = items;
+        } else {
+            let programmed = [],
+                active = [],
+                originalItems = items;
+            
+            if (filters.programmed) {
+                programmed = items.filter((category) => {
+                    return category.status === 'programmed';
+                });
+            }
+
+            if (filters.active) {
+                active = items.filter((category) => {
+                    return category.status === 'active';
+                });
+            }
+
+            if (filters.programmed || filters.active) {
+                filteredItems = active.concat(programmed);
+                originalItems = filteredItems;
+            }
+
+            if (filters.select) {
+                filteredItems = originalItems.filter((category) => {
+                    return category.selected;
+                });
+            } 
+        }
+
+        return filteredItems;
     }
     
 }

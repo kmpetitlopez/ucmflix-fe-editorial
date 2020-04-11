@@ -40,6 +40,10 @@
                 </div>
             </div>
             <div class="Block2" v-if="isCategory">
+                <p class="Information"><span>ID: </span>{{item.id}}</p>
+                <Icon icon="eye-off" :size="20" v-if="item.status === 'expired'" class="Information"/>
+                <Icon icon="eye" :size="20" v-if="item.status === 'active'" class="Information"/>
+                <Icon icon="clock" :size="20" v-if="item.status === 'programmed'" class="Information"/>
                 <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
                 <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
                 <div class="Search">
@@ -56,6 +60,10 @@
                 </div>
             </div>
             <div class="Block2" v-if="isContent">
+                <p class="Information"><span>ID: </span>{{item.id}}</p>
+                <Icon icon="eye-off" :size="20" v-if="item.status === 'expired'" class="Information"/>
+                <Icon icon="eye" :size="20" v-if="item.status === 'active'" class="Information"/>
+                <Icon icon="clock" :size="20" v-if="item.status === 'programmed'" class="Information"/>
                 <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
                 <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
             </div>
@@ -166,6 +174,12 @@ export default {
                 border: 1px solid $gray-04;
                 border-radius: 4px;
                 cursor: pointer;
+                font-size: 15px;
+                text-align: center;
+                margin-right: 10px;
+            }
+            .Information {
+                padding: 6px 5px;
                 font-size: 15px;
                 text-align: center;
                 margin-right: 10px;

@@ -6,15 +6,6 @@
                 :handleClickItem="handleClickItem"
                 :saveItem="saveItem"
                 :deleteItem="deleteItem"/>
-            
-            <div class="Information">
-                <div class="InformationBlock">
-                    <p class="InformationChild"><span>ID: </span>{{category.id}}</p>
-                    <Icon icon="eye-off" :size="20" v-if="category.status === 'expired'" class="InformationChild"/>
-                    <Icon icon="eye" :size="20" v-if="category.status === 'active'" class="InformationChild"/>
-                    <Icon icon="clock" :size="20" v-if="category.status === 'programmed'" class="InformationChild"/>
-                </div>
-            </div>
 
             <div class="Edition">
                 <div>
@@ -120,20 +111,6 @@ export default {
             cursor: pointer;
         }
     }
-    .Information {
-        margin-top: 10px;
-        .InformationBlock{
-            float: right;
-            margin-right: 100px;
-            .InformationChild {
-                display: inline-block;
-                margin-right: 10px;
-                &:last-child {
-                    margin-right: 0px;
-                }
-            }
-        }
-    }    
     .Edition {
         padding: 50px;
         div{

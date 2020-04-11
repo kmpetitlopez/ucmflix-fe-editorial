@@ -44,9 +44,9 @@
                         <span>{{ content.country || '-' }}</span>
                         <span>{{ content.duration ? content.duration + 'min' : '-' }}</span>
                         <span>{{ content.parentalRating || '-' }}</span>
-                        <Icon icon="eye-off" :size="20" v-if="content.status === 'expired'"/>
-                        <Icon icon="eye" :size="20" v-if="content.status === 'active'"/>
-                        <Icon icon="clock" :size="20" v-if="content.status === 'programmed'"/>
+                        <Icon icon="eye-off" :size="20" v-if="content.status === 'expired'" />
+                        <Icon icon="eye" :size="20" v-if="content.status === 'active'" />
+                        <Icon icon="clock" :size="20" v-if="content.status === 'programmed'" />
                     </footer>
                 </div>
             </template>
