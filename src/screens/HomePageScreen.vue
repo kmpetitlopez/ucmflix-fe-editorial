@@ -1,20 +1,23 @@
 <template>
     <div class="HomepageScreen">
-        <div class="Wrapper">
-            <Header />
+        <Header />
 
-            <div class="Content">
-                <!-- SECTIONS -->
-                <div class="Section" v-for="(category, i) in categories" :key="i" >
-                    <h2
-                        class="SectionTitle"
-                        @click="handleSectionRedirect(category.id)"
-                    >
+        <div class="Content">
+            <div class="Section" v-for="(category, i) in categories" :key="i" >
+                <div class="SectionTitle">
+                    <h2 @click="handleSectionRedirect(category.id)" class="SectionTitleChild">
                         {{category.name}}
                     </h2>
-                    <div class="SliderSection">
-                        <Slider :contents="category.contents"/>
-                    </div>
+                    <p class="SectionTitleChild">
+                        {{category.startDate}} {{category.endDate ? ('- ' + category.endDate) : '' }}
+                    </p>
+                    <Icon icon="eye-off" :size="20" v-if="category.status === 'expired'" class="SectionTitleChild"/>
+                    <Icon icon="eye" :size="20" v-if="category.status === 'active'" class="SectionTitleChild"/>
+                    <Icon icon="clock" :size="20" v-if="category.status === 'programmed'" class="SectionTitleChild"/>
+                </div>
+                
+                <div class="SliderSection">
+                    <Slider :contents="category.contents"/>
                 </div>
             </div>
         </div>
@@ -22,20 +25,19 @@
 </template>
 
 <script>
-import { Slider, Header } from '@/components'
+import { Slider, Header, Icon } from '@/components'
 import utils from '@/utils/utils'
 
 export default {
     name: 'HomepageScreen',
     components: {
         Slider,
-        Header
+        Header,
+        Icon
     },
     data () {
         return {
-            value: undefined,
-            categories: [],
-            newContents: []
+            categories: []
         }
     },
     methods: {
@@ -44,11 +46,6 @@ export default {
         },
         async fetchResult () {
             this.categories = await utils.getHomeScreenInfo()
-            this.newContents = await utils.getHomeScreenNews()
-        },
-        getPath (content) {
-            const path = content.type === 'master' ? '/master/' : '/detail/';
-            return path + content.id;
         }
     },
     mounted () {
@@ -60,44 +57,27 @@ export default {
 @import "@/theme/_variables.scss";
 
 .HomepageScreen {
-    .Wrapper {
-        width: 100%;
-        
-        .Content {
-            z-index: 1;
-            .Slider {
-                .Slides {
-                    height: 350px;
-                }
-                .Icon{
-                    background-color: $black-light;
-                    border: 1px solid $black-medium;
-                    border-radius: 10px;
-                    box-shadow: none;
-                    transition: 0.3s;
-                    width: 15px;
-                    height: 15px;
-                }
-                .Icon--active{
-                    background-color: $body-color;
-                }
-            }
-            .Section {
-                .SectionTitle {
-                    margin-left: 60px;
-                    margin-top: 25px;
+    width: 100%;
+    .Content {
+        z-index: 1;
+        .Section {
+            .SectionTitle {
+                margin-left: 60px;
+                margin-top: 25px;
+                h2{
                     color: $body-color;
                     font-size: 35px;
                     cursor: pointer;
                 }
-                .SliderSection {
-                    width: 100%;
+                .SectionTitleChild{
+                    display: inline-block;
+                    margin-right: 10px;
                 }
-            }  
-        } 
-    }
-}
-img {
-    cursor: pointer;
+            }
+            .SliderSection {
+                width: 100%;
+            }
+        }  
+    } 
 }
 </style>

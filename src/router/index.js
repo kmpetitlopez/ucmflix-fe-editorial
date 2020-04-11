@@ -39,6 +39,11 @@ const router = new Router({
             component: DetailScreen,
         },
         {
+            path: '/detail/',
+            name: 'detail',
+            component: DetailScreen,
+        },
+        {
             path: '/master/:id',
             name: 'master',
             component: MasterScreen,

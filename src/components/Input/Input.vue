@@ -30,9 +30,9 @@
                 class="DropdownItem"
                 v-for="(content, i) in items"
                 :key="i"
-                @click="handleClick(content)"
+                @click="applySearch(content)"
             >
-                {{ content.title }}
+                {{ content.title || content.name}}
             </li>
         </ul>
     </div>
@@ -70,7 +70,8 @@ export default {
             'black',
             'yellow',
         ]).def('dark'),
-        handleClick: VueTypes.func.isRequired
+        handleClick: VueTypes.func.isRequired,
+        isContent: VueTypes.bool.isRequired.def(true)
     },
     data () {
         return {
@@ -89,11 +90,17 @@ export default {
     },
     methods: {
         async fetchResult (searchString) {
-            this.items = await utils.searchContent(searchString);
+            this.items = this.isContent ?
+                await utils.searchContent(searchString) :
+                await utils.searchCategory(searchString);
         },
         nameOfCustomEventToCall () {
             this.items = [];
             this.searchString = '';
+        },
+        applySearch(content) {
+            this.handleClick(content);
+            this.nameOfCustomEventToCall();
         }
     },
     watch: {

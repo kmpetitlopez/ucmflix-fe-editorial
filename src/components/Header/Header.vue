@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div class="Block" v-if="home">
-                <div class="Creation" @click="$router.push('/detail')">Crear Contenido</div>
+                <Icon icon="file-plus" :size="20" class="Creation" @click="$router.push('/detail')"/>
                 <div class="Search">
                     <Input
                         v-model="value"
@@ -20,11 +20,12 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickContentSearch"
+                        :isContent="true"
                     />
                 </div>
             </div>
             <div class="Block" v-if="home">
-                <div class="Creation" @click="$router.push('/section')">Crear Categoría</div>
+                <Icon icon="folder-plus" :size="20" class="Creation" @click="$router.push('/section')"/>
                 <div class="Search">
                     <Input
                         v-model="value"
@@ -34,12 +35,13 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickCategorySearch"
+                        :isContent="false"
                     />
                 </div>
             </div>
             <div class="Block2" v-if="isCategory">
-                <div class="Creation" @click="saveItem(item)">Guardar</div>
-                <div class="Creation" @click="deleteItem(item)">Borrar</div>
+                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
+                <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
                 <div class="Search">
                     <Input
                         v-model="value"
@@ -49,23 +51,13 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickItem"
+                        :isContent="true"
                     />
                 </div>
             </div>
             <div class="Block2" v-if="isContent">
-                <div class="Creation" @click="saveItem(item)">Guardar</div>
-                <div class="Creation" @click="deleteItem(item)">Borrar</div>
-                <div class="Search">
-                    <Input
-                        v-model="value"
-                        name="search"
-                        type="search"
-                        placeholder="Asociar Categoria..."
-                        iconLeft="search"
-                        :width="350"
-                        :handleClick="handleClickItem"
-                    />
-                </div>
+                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
+                <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
             </div>
         </div>
     </div>
@@ -73,7 +65,7 @@
 
 <script>
 import VueTypes from 'vue-types'
-import {Input} from '@/components';
+import {Input, Icon} from '@/components';
 
 export default {
     name: 'Header',
@@ -87,7 +79,8 @@ export default {
         item: VueTypes.object.def({})
     },
     components: {
-        Input
+        Input,
+        Icon
     },
     data() {
         return {

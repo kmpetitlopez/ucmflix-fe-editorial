@@ -12,27 +12,41 @@
     >
         <vueper-slide 
             v-for="(content, i) in contents" 
-            :key="i" :link="getPath(content)"
-            :class="{'Info': !content.hover, Img: content.hover}"
+            :key="i" :link="addLink ? ('/detail/' + content.id) : ''"
+            :class="{'Info': (!content.hover || !hover), 'Img': (content.hover && hover)}"
             @mouse-enter="onHoverEnter(content)"
             @mouse-leave="onHoverLeave(content)"
+            @click.native="onClick(content)"
         >
-            <template v-slot:content="">
-                <div v-if="content.hover">
+            <template v-slot:content>
+                <div v-if="content.hover && hover" >
                     <div
-                        class="Img--test"
-                        :style="`background-image: url(${content.imageUrl}), url(${content.defaultImage});`"
+                        class="ImgChild"
+                        :style="`background-image: url(${content.defaultImage});`"
                     ></div>
                 </div>
-                <div class="Info--text" v-if="!content.hover">
-                    <h2>{{ content.title }}</h2>
+                <div class="InfoChild" v-if="!content.hover || !hover">
+                    <h2 class="InfoChildTitle">{{ content.title }}</h2>
+                    <Icon icon="check-square" 
+                        :size="20" v-if="!addLink && content.selected" 
+                        class="InfoChildSelected"
+                        
+                    />
+                    <Icon icon="square" 
+                        :size="20" v-if="!addLink && !content.selected" 
+                        class="InfoChildUnselected"
+                        
+                    />
                     <h4>{{ content.genre || 'Entretenimiento/Otros' }}</h4>
                     <p>{{ content.description || '...' }}</p>
                     <footer>
                         <span>{{ content.year || '-' }}</span>
                         <span>{{ content.country || '-' }}</span>
-                        <span>{{ content.duration + 'min' || '-' }}</span>
+                        <span>{{ content.duration ? content.duration + 'min' : '-' }}</span>
                         <span>{{ content.parentalRating || '-' }}</span>
+                        <Icon icon="eye-off" :size="20" v-if="content.status === 'expired'"/>
+                        <Icon icon="eye" :size="20" v-if="content.status === 'active'"/>
+                        <Icon icon="clock" :size="20" v-if="content.status === 'programmed'"/>
                     </footer>
                 </div>
             </template>
@@ -44,15 +58,20 @@
 import VueTypes from 'vue-types'
 import { VueperSlides, VueperSlide } from 'vueperslides'
 import 'vueperslides/dist/vueperslides.css'
+import {Icon} from '@/components';
 
 export default {
     name: 'Slider',
     components: {
         VueperSlides,
-        VueperSlide
+        VueperSlide,
+        Icon
     },
     props: {
-        contents: VueTypes.array.isRequired
+        contents: VueTypes.array.isRequired,
+        addLink: VueTypes.bool.def(true),
+        hover: VueTypes.bool.def(true),
+        onClick: VueTypes.func.def(() => {})
     },
     data () {
         return {}
@@ -63,10 +82,6 @@ export default {
         },
         onHoverLeave (content) {
             content.hover = false
-        },
-        getPath (content) {
-            const path = content.type === 'master' ? '/master/' : '/detail/';
-            return path + content.id;
         }
     }
 }
@@ -82,7 +97,7 @@ export default {
         .Img {
             background-color: $white;
             border: 1px solid $black-medium;
-            .Img--test {
+            .ImgChild {
                 background-size: cover;
                 height: 150px;
             }
@@ -90,7 +105,8 @@ export default {
         .Info {
             background-color: $black-light;
             border: 1px solid $black-medium;
-            .Info--text{
+            cursor: pointer;
+            .InfoChild{
                 h2 {
                     color: $gray-02;
                     font-weight:bold;
@@ -117,6 +133,21 @@ export default {
                     span{
                         padding: 10px;
                     }
+                }
+                .InfoChildTitle{
+                    display: inline-block;
+                    
+                }
+                .InfoChildSelected{
+                    float: right;
+                    margin-right: 10px;
+                    margin-top: 5px;
+                    color:$success
+                }
+                .InfoChildUnselected{
+                    float: right;
+                    margin-right: 10px;
+                    margin-top: 5px;
                 }
             }
         }
