@@ -45,6 +45,13 @@ export default {
       })
   },
 
+  getContentWithoutCategories () {
+    return axios.get('/contents/empty-categories')
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
   getContentVodEvents (id) {
     return axios.get('/contents/' + id + '/vod-events')
       .then(response => {
@@ -53,13 +60,9 @@ export default {
   },
 
   getContentEpisodes (id, args) {
-    let query = '';
-
-    if (args && args.length) {
-      query = this.buildQuery(args);
-    }
-
-    return axios.get('/contents/' + id + '/episodes' + query)
+    return axios.get('/contents/' + id + '/episodes', {
+      param: args
+    })
       .then(response => {
         return response.data  && response.data.response
       })
@@ -142,6 +145,41 @@ export default {
     return axios.get('/category-references', {
       params
     })
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  createContent (body) {
+    return axios.post('/contents', body)
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+  
+  updateContent (id, body) {
+    return axios.put('/contents/' + id , body)
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  deleteContent (id) {
+    return axios.delete('/contents/' + id )
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+  
+  createVodEvent (body) {
+    return axios.post('/vod-events', body)
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  deleteVodEvent (id) {
+    return axios.delete('/vod-events/' + id )
       .then(response => {
         return response.data  && response.data.response
       })

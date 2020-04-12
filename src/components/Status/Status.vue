@@ -1,7 +1,7 @@
 <template>
     <div class="Parent">
-        <Icon icon="eye-off" :size="20" v-if="item.status === 'expired'"/>
-        <Icon icon="eye" :size="20" v-if="item.status === 'active'"/>
+        <Icon icon="x-circle" :size="20" v-if="item.status === 'expired'"/>
+        <Icon icon="tv" :size="20" v-if="item.status === 'active'"/>
         <Icon icon="clock" :size="20" v-if="item.status === 'programmed'"/>
     </div>
 </template>

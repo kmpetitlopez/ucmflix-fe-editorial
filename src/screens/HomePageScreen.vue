@@ -3,6 +3,17 @@
         <Header />
 
         <div class="Content">
+            <div class="Section">
+                <div class="SectionTitle">
+                    <h2 class="SectionTitleChild">
+                        Contenido sin categoría
+                    </h2>
+                </div>
+                
+                <div class="SliderSection">
+                    <Slider :contents="contentWithoutCategory"/>
+                </div>
+            </div>
             <div class="Section" v-for="(category, i) in categories" :key="i" >
                 <div class="SectionTitle">
                     <h2 @click="handleSectionRedirect(category.id)" class="SectionTitleChild">
@@ -35,7 +46,8 @@ export default {
     },
     data () {
         return {
-            categories: []
+            categories: [],
+            contentWithoutCategory: []
         }
     },
     methods: {
@@ -43,7 +55,8 @@ export default {
             this.$router.push({ name: 'section', params: { id: param } })
         },
         async fetchResult () {
-            this.categories = await utils.getHomeScreenInfo()
+            this.categories = await utils.getHomeScreenInfo();
+            this.contentWithoutCategory = await utils.getContentWithoutCategories();
         }
     },
     mounted () {

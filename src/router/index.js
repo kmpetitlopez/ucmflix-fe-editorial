@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { MainScreen, NotFoundScreen, HomePageScreen, SectionScreen, DetailScreen, MasterScreen } from '@/screens'
+import { MainScreen, NotFoundScreen, HomePageScreen, SectionScreen, DetailScreen } from '@/screens'
 
 Vue.use(Router)
 
@@ -42,11 +42,6 @@ const router = new Router({
             path: '/detail/',
             name: 'detail',
             component: DetailScreen,
-        },
-        {
-            path: '/master/:id',
-            name: 'master',
-            component: MasterScreen,
         }
     ],
 })

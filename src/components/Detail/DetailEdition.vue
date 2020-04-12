@@ -118,14 +118,12 @@ export default {
         }
         .Input{
             padding: 5px;
-            min-height: 35px;
-            height: 35px;
             width: 300px;
             border: 1px solid $gray-04;
             border-radius: 4px;
             background: transparent;
             color: $body-color;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 400;
             transition: border-color 0.5s ease-in-out;
         }
@@ -135,6 +133,9 @@ export default {
         .Input:focus{
             outline: none;
         }
+        input{
+            height: 25px;
+        }
         .BigInput{
             padding: 0px 5px;
             min-height: 50px;
@@ -143,7 +144,7 @@ export default {
             border-radius: 4px;
             background: transparent;
             color: $body-color;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 400;
             transition: border-color 0.5s ease-in-out;
         }

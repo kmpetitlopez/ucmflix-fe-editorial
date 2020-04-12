@@ -26,7 +26,7 @@
                     ></div>
                 </div>
                 <div class="InfoChild" v-if="!content.hover || !hover">
-                    <h2 class="InfoChildTitle">{{ content.title }}</h2>
+                    <h2 class="InfoChildTitle">{{ content.title }} | {{content.id}}</h2>
                     <Icon icon="check-square" 
                         :size="20" v-if="!addLink && content.selected" 
                         class="InfoChildSelected"
@@ -44,8 +44,8 @@
                         <span>{{ content.country || '-' }}</span>
                         <span>{{ content.duration ? content.duration + 'min' : '-' }}</span>
                         <span>{{ content.parentalRating || '-' }}</span>
-                        <Icon icon="eye-off" :size="20" v-if="content.status === 'expired'" />
-                        <Icon icon="eye" :size="20" v-if="content.status === 'active'" />
+                        <Icon icon="x-circle" :size="20" v-if="content.status === 'expired'" />
+                        <Icon icon="tv" :size="20" v-if="content.status === 'active'" />
                         <Icon icon="clock" :size="20" v-if="content.status === 'programmed'" />
                     </footer>
                 </div>

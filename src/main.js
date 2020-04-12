@@ -2,8 +2,11 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from '@/router'
 import axios from 'axios'
+import Toasted from 'vue-toasted';
 
 axios.defaults.baseURL = 'http://localhost:3000'
+
+Vue.use(Toasted)
 
 Vue.directive('click-outside', {
     bind: function (el, binding, vnode) {

@@ -40,11 +40,8 @@
                 </div>
             </div>
             <div class="Block2" v-if="isCategory">
-                <p class="Information"><span>ID: </span>{{item.id}}</p>
-                <Icon icon="eye-off" :size="20" v-if="item.status === 'expired'" class="Information"/>
-                <Icon icon="eye" :size="20" v-if="item.status === 'active'" class="Information"/>
-                <Icon icon="clock" :size="20" v-if="item.status === 'programmed'" class="Information"/>
-                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
+                <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
+                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
                 <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
                 <div class="Search">
                     <Input
@@ -60,11 +57,8 @@
                 </div>
             </div>
             <div class="Block2" v-if="isContent">
-                <p class="Information"><span>ID: </span>{{item.id}}</p>
-                <Icon icon="eye-off" :size="20" v-if="item.status === 'expired'" class="Information"/>
-                <Icon icon="eye" :size="20" v-if="item.status === 'active'" class="Information"/>
-                <Icon icon="clock" :size="20" v-if="item.status === 'programmed'" class="Information"/>
-                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)"/>
+                <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
+                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
                 <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
             </div>
         </div>
@@ -84,7 +78,8 @@ export default {
         handleClickItem: VueTypes.func.def(() => {}),
         saveItem: VueTypes.func.def(() => {}),
         deleteItem: VueTypes.func.def(() => {}),
-        item: VueTypes.object.def({})
+        item: VueTypes.object.def({}),
+        saveButton: VueTypes.bool.def(false)
     },
     components: {
         Input,
@@ -177,6 +172,10 @@ export default {
                 font-size: 15px;
                 text-align: center;
                 margin-right: 10px;
+            }
+            .CreationActive{
+                border-color: $warning;
+                color: $warning
             }
             .Information {
                 padding: 6px 5px;

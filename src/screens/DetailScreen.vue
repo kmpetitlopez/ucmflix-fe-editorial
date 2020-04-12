@@ -5,15 +5,13 @@
                 :isContent="true"
                 :item="content"
                 :saveItem="saveItem"
-                :deleteItem="deleteItem"/>
+                :deleteItem="deleteItem" :key="content.id" :saveButton="saveButton"/>
 
             <DetailEdition :content="content"/>
             
             <div class="ExternalSection">
                 <div class="ExternalSectionChild">
-                    <DetailHeader :filters="filtersCategory"
-                        :filter="filterCategories"
-                        title="Categorías"/>
+                    <DetailHeader :filters="filtersCategory" :filter="filterCategories" title="Categorías"/>
                     <div class="CategoryBox">
                         <div v-for="(category) in filteredCategories" :key="category.name" class="CategoryItem">
                             <Icon icon="check-square" :size="20" v-if="category.selected" class="CategoryItemChildSelected"
@@ -28,22 +26,31 @@
                     </div>
                 </div>
                 <div class="ExternalSectionChild">
-                    <DetailHeader :filters="filtersVodEvent"
-                        :filter="filterVodEvents"
-                        title="Eventos"/>
+                    <DetailHeader :filters="filtersVodEvent" :filter="filterVodEvents" title="Eventos"
+                        :extra="true" :deleteSelected="deleteVodEvents" :add="addVodEvents"/>
                     <div class="VodEventBox">
-                        <div v-for="(vodEvent, i) in filteredVodEvents" :key="i" class="VodEventItem">
-                            <Icon icon="check-square" :size="20" v-if="vodEvent.selected" class="CategoryItemChildSelected"
-                                :clickable="true" />
+                        <div v-for="(vodEvent) in filteredVodEvents" :key="vodEvent.name" class="VodEventItem">
+                            <Icon icon="check-square" :size="20" v-if="vodEvent.selected" class="VodEventItemChildSelected"
+                                :clickable="true"  @click="selectVodEvent(vodEvent)"/>
                             <Icon icon="square" :size="20" v-if="!vodEvent.selected" class="VodEventItemChild"
-                                :clickable="true" />
+                                :clickable="true" @click="selectVodEvent(vodEvent)"/>
                             <date-pick v-model="vodEvent.windowStartTime" class="DatePicker" :editable="vodEvent.editable"></date-pick>
-                            <date-pick v-model="vodEvent.windowStartTime" class="DatePicker" :editable="vodEvent.editable"></date-pick>
+                            <date-pick v-model="vodEvent.windowEndTime" class="DatePicker" :editable="vodEvent.editable"></date-pick>
                             <Status :item="vodEvent" class="VodEventItemChild"/>
                         </div>
                     </div>
                 </div>
                 <div class="ExternalSectionChild">
+                    <DetailHeader :filters="filtersVodEvent" :filter="filterVodEvents" title="Imagen" :search="true"/>
+                    <div class="Image"
+                        :style="{backgroundImage : `url('${content.imageUrl}'), url('${content.defaultImage}')`  }" />
+                </div>
+            </div>
+
+            <div class="EpisodeSection" v-for="(season, i) in seasons" :key="i">
+                <h3 class="SectionTitle">Temporada {{ season.seasonNumber }}</h3>
+                <div class="SliderSection">
+                    <Slider :contents="season.episodes" />
                 </div>
             </div>
         </div>
@@ -51,7 +58,7 @@
 </template>
 
 <script>
-import { DetailHeader,DetailEdition, Header, Icon, Status } from '@/components'
+import { DetailHeader,DetailEdition, Header, Icon, Status, Slider } from '@/components'
 import utils from '@/utils/utils'
 import api from '@/utils/api'
 //import moment from 'moment'
@@ -66,21 +73,25 @@ export default {
         Header,
         Icon,
         Status,
-        DatePick
+        DatePick,
+        Slider
     },
     computed: {
-        contentId () {
-            return this.$router.history.current.params.id
+        contentId() {
+            return this.$router.history.current.params.id;
         }
     },
     data () {
         return {
-            content: {},
+            content: {
+                id: 0
+            },
             categories: [],
             filteredCategories: [],
             contentCategories: [],
             contentVodEvents: [],
             filteredVodEvents: [],
+            seasons: [],
             filtersCategory: {
                 select: false,
                 active: false,
@@ -118,15 +129,44 @@ export default {
                 '+16',
                 '+18',
                 'X'
-            ]
+            ],
+            toastOptions: {
+                position: 'top-center',
+                duration: 3000
+            },
+            saveButton: false
+        }
+    },
+    watch: {
+        content: {
+            deep: true,
+            handler() {
+                this.saveButton = true;
+            }
+        },
+        contentVodEvents: {
+            deep: true,
+            handler() {
+                this.saveButton = true;
+            }
+        },
+        categories: {
+            deep: true,
+            handler() {
+                this.saveButton = true;
+            }
         }
     },
     methods: {
-        async fetchResult () {
-            if (this.contentId) {
-                this.content = await utils.getDetailScreenInfo(this.contentId);
-                this.contentCategories = (await api.getContentCategories(this.contentId)).items;
-                this.contentVodEvents = await utils.getContentVodEvents(this.contentId);
+        async fetchResult (contentId) {
+            if (this.contentId || contentId) {
+                this.content = await utils.getDetailScreenInfo(this.contentId || contentId);
+                this.contentCategories = (await api.getContentCategories(this.contentId || contentId)).items;
+                this.contentVodEvents = await utils.getContentVodEvents(this.contentId || contentId);
+
+                if (this.content.type === 'master') {
+                    this.seasons = await utils.getMasterSeasons(this.contentId || contentId);
+                }
             }
 
             this.categories = (await utils.searchCategory('')).map((category) => {
@@ -143,18 +183,42 @@ export default {
             this.filteredCategories = this.categories;
             this.filteredVodEvents = this.contentVodEvents;
         },
-        async saveItem (content) {
-            console.log(content)
+        async saveItem () {
+            try {
+                const categories = this.categories.filter((cat) => cat.selected),
+                    newContent = await utils.saveContent(this.content, categories, this.contentVodEvents),
+                    message = `Contenido ${this.contentId ? 'actualizado' : 'creado'} correctamente`;
+                
+                this.content.id = newContent.id;
+                await this.fetchResult(newContent.id);
+                this.saveButton = false;
+                
+                this.$toasted.success(message, this.toastOptions);
+            } catch(err) {
+                const message = `Error ${this.contentId ? 'actualizando' : 'creando'} ` +
+                    `el contenido. [err=${err && err.toString()}]`;
+                this.$toasted.error(message, this.toastOptions);
+            }
         },
-        async deleteItem (content) {
-            console.log(content)
+        async deleteItem () {
+            try {
+                await utils.deleteContent(this.content);
+                this.saveButton = false;
+                this.$router.push('/')
+            } catch(err) {
+                const message = `Error eliminando el contenido. [err=${err && err.toString()}]`;
+                this.$toasted.error(message, this.toastOptions);
+            }
         },
         selectCategory (category) {
             category.selected = !category.selected ? true : false;
             category.name += '.';
         },
+        selectVodEvent (vodEvent) {
+            vodEvent.selected = !vodEvent.selected ? true : false;
+            vodEvent.name += '.';
+        },
         filterCategories (filter) {
-            console.log(filter)
             this.filtersCategory[filter] = !this.filtersCategory[filter];
 
             const filtersDeactivated = !this.filtersCategory.select &&
@@ -173,10 +237,37 @@ export default {
             this.filteredVodEvents = utils.filter(
                 filtersDeactivated, this.filtersVodEvent,
                 this.filteredVodEvents, this.contentVodEvents)
+        },
+        deleteVodEvents () {
+            this.contentVodEvents = this.contentVodEvents.filter((vodEvents) => {
+                return !vodEvents.selected;
+            });
+            this.filteredVodEvents = this.contentVodEvents;
+
+            for (const filter in this.filtersVodEvent) {
+                this.filtersVodEvent[filter] = false;
+            }
+        },
+        addVodEvents () {
+            const newVodEvent = {
+                windowStartTime: null,
+                windowEndTime: null,
+                editable: true,
+                selected: false,
+                new: true
+            };
+
+            this.contentVodEvents.push(newVodEvent);
+            this.filteredVodEvents = this.contentVodEvents;
+
+            for (const filter in this.filtersVodEvent) {
+                this.filtersVodEvent[filter] = false;
+            }
         }
     },
     async mounted () {
         await this.fetchResult()
+        this.saveButton = false;
     },
 }
 </script>
@@ -232,7 +323,13 @@ export default {
                             display: inline-block;
                             margin-left: 10px;
                         }
+                        .VodEventItemChildSelected{
+                            display: inline-block;
+                            margin-left: 10px;
+                            color:$success
+                        }
                         .DatePicker{
+                            z-index: 2;
                             display: inline-block;
                             margin-left: 10px;
                             margin-top: 10px;
@@ -243,6 +340,24 @@ export default {
                         }
                     }
                 }
+                .Image{
+                    height: 300px;
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                }
+            }
+        }
+
+        .EpisodeSection {
+            .SectionTitle {
+                margin-left: 60px;
+                margin-top: 25px;
+                color: $body-color;
+                font-size: 35px;
+                cursor: pointer;
+            }
+            .SliderSection {
+                width: 100%;
             }
         }
     }

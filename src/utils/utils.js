@@ -78,6 +78,12 @@ export default {
         return categories
     },
 
+    async getContentWithoutCategories() {
+        const contents = (await api.getContentWithoutCategories()).items;
+        
+        return this.completeContentInfo(contents);
+    },
+
     async getSectionScreenInfo(id) {
         const category = await api.getCategory(id),
             categoryReferences = (await api.getCategoryContents(
@@ -138,8 +144,7 @@ export default {
     },
 
     async getSeasonEpisodes(id, seasonNumber) {
-        const args = [{activeContents: true}, {seasonNumber}],
-            contents = (await api.getContentEpisodes(id, args)).items;
+        const contents = (await api.getContentEpisodes(id, {seasonNumber})).items;
 
         return await this.completeContentInfo(contents);
     },
@@ -209,6 +214,7 @@ export default {
             vodEvent.status = this.getStatus(vodEvent.windowStartTime, vodEvent.windowEndTime);
             vodEvent.windowStartTime = this.formatDate(vodEvent.windowStartTime);
             vodEvent.windowEndTime = this.formatDate(vodEvent.windowEndTime);
+            vodEvent.name = 'tmp' + vodEvent.id;
         }
 
         return vodEvents;
@@ -247,6 +253,98 @@ export default {
         }
 
         return filteredItems;
-    }
+    },
+
+    createVodEvents (vodEvents, contentId) {
+        return vodEvents.filter((vodEvent) => {
+            if (vodEvent.new) {
+                delete vodEvent.selected;
+                delete vodEvent.editable;
+                delete vodEvent.new;
+                delete vodEvent.name;
+        
+                vodEvent.windowStartTime = moment.utc(vodEvent.windowStartTime).startOf('day');
+                vodEvent.windowEndTime = vodEvent.windowEndTime ?
+                    moment.utc(vodEvent.windowEndTime).endOf('day') : null;
+                vodEvent.contentId = contentId;
+        
+                return api.createVodEvent(vodEvent);
+            }
+        });
+    },
     
+    createCategoryReferences (categories, categoryReferences, contentId) {
+        return categories.filter((category) => {
+            const isInReferences = categoryReferences.find((ref) => {
+                return ref.categoryId === category.id;
+            });
+    
+            if (!isInReferences) {
+                return api.createCategoryReference({
+                    categoryId: category.id,
+                    contentId
+                });
+            }
+        });
+    },
+    
+    deleteCategoryReferences (categories, categoryReferences, contentId) {
+        return categoryReferences.filter((reference) => {
+            const isInCategories = categories.find((category) => {
+                return reference.categoryId === category.id;
+            });
+    
+            if (!isInCategories) {
+                return api.deleteCategoryReference({
+                    categoryId: reference.categoryId,
+                    contentId: contentId
+                });
+            }
+        });
+    },
+    
+    deleteVodEvents (originalVodEvents, vodEvents) {
+        return originalVodEvents.filter((org) => {
+            const isInVodEvents = vodEvents.find((vodEvent) => {
+                return org.id === vodEvent.id;
+            });
+    
+            if (!isInVodEvents) {
+                return api.deleteVodEvent(org.id);
+            }
+        });
+    },
+    
+    async saveContent(content, categories = [], vodEvents = []) {
+        const promises = [];
+        let newContent = {},
+            categoryReferences = [],
+            contentVodEvents = [];
+
+        if (content.id) {
+            newContent = await api.updateContent(content.id, content);
+            categoryReferences = (await api.getCategoryReferences({
+                contentId: content.id
+            })).items;
+            contentVodEvents = (await api.getContentVodEvents(content.id)).items
+
+            promises.push(...this.deleteVodEvents(contentVodEvents, vodEvents));
+            promises.push(...this.deleteCategoryReferences(categories,categoryReferences, content.id));
+            promises.push(...this.createVodEvents(vodEvents, content.id));
+            promises.push(...this.createCategoryReferences(categories, categoryReferences, content.id));
+        } else {
+            newContent = await api.createContent(content);
+            promises.push(...this.createVodEvents(vodEvents, newContent.id));
+            promises.push(...this.createCategoryReferences(categories, categoryReferences, newContent.id));
+        }
+    
+        await Promise.all(promises);
+        return newContent;
+    },
+
+    async deleteContent(content) {
+        if (content && content.id) {
+            await api.deleteContent(content.id);
+        }
+    }
 }

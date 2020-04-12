@@ -5,7 +5,9 @@
                 :item="category"
                 :handleClickItem="handleClickItem"
                 :saveItem="saveItem"
-                :deleteItem="deleteItem"/>
+                :deleteItem="deleteItem"
+                :key="category.id"
+                :saveButton="saveButton"/>
 
             <div class="Edition">
                 <div>
@@ -49,7 +51,21 @@ export default {
     data () {
         return {
             category: {
-                contents: []
+                contents: [],
+                id: 0
+            },
+            toastOptions: {
+                position: 'top-center',
+                duration: 3000
+            },
+            saveButton: false
+        }
+    },
+     watch: {
+        category: {
+            deep: true,
+            handler() {
+                this.saveButton = true;
             }
         }
     },
@@ -57,23 +73,37 @@ export default {
         handleClickItem(param) {
             this.category.contents.push(param)
         },
-        async fetchResult () {
-            if (this.sectionID) {
-                this.category = await utils.getSectionScreenInfo(this.sectionID);
+        async fetchResult (categoryId) {
+            if (this.sectionID || categoryId) {
+                this.category = await utils.getSectionScreenInfo(this.sectionID || categoryId);
             }
         },
         async saveItem (category) {
-            const newCategory = await utils.saveCategory(category);
+            try {
+                const newCategory = await utils.saveCategory(category),
+                    message = `Categoría ${this.sectionID ? 'actualizada' : 'creada'} correctamente`;
+                
+                this.category.id = newCategory.id;
+                await this.fetchResult(newCategory.id)
 
-            if (this.category.id) {
-                this.$router.go(0);
-            } else {
-                this.$router.push({ name: 'section', params: { id: newCategory.id } });
+                this.saveButton = false;
+                
+                this.$toasted.success(message, this.toastOptions);
+            } catch(err) {
+                const message = `Error ${this.sectionID ? 'actualizando' : 'creando'} ` +
+                    `la categoría. [err=${err && err.toString()}]`;
+                this.$toasted.error(message, this.toastOptions);
             }
         },
         async deleteItem (category) {
-            await utils.deleteCategory(category);
-            this.$router.push('/')
+            try {
+                await utils.deleteCategory(category);
+                this.saveButton = false;
+                this.$router.push('/')
+            } catch(err) {
+                const message = `Error eliminando la categoría. [err=${err && err.toString()}]`;
+                this.$toasted.error(message, this.toastOptions);
+            }
         },
         selectContent(content) {
             content.selected = !content.selected ? true : false;
@@ -85,6 +115,7 @@ export default {
     },
     mounted () {
         this.fetchResult()
+        this.saveButton = false;
     },
     computed: {
         sectionID() {
