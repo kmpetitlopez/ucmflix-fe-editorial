@@ -43,7 +43,7 @@
                 <div class="ExternalSectionChild">
                     <DetailHeader :filters="filtersVodEvent" :filter="filterVodEvents" title="Imagen" :search="true"/>
                     <div class="Image"
-                        :style="{backgroundImage : `url('${content.imageUrl}'), url('${content.defaultImage}')`  }" />
+                        :style="{backgroundImage : `url('${content.imageUrl}')`  }" />
                 </div>
             </div>
 

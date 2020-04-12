@@ -113,8 +113,8 @@ export default {
         }
         
     },
-    mounted () {
-        this.fetchResult()
+    async mounted () {
+        await this.fetchResult()
         this.saveButton = false;
     },
     computed: {

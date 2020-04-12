@@ -1,10 +1,20 @@
 import api from './api'
 import _ from 'lodash'
 import moment from 'moment'
+import axios from 'axios'
 
 export default {
-    getImageUrl(id){
-        return 'http://localhost:3000/static/images/' + id + '.jpg';
+    isRemoteImage(uri = '') {
+        const HTTP_REGEX = /^(https|http)?:\/\//;
+
+        return HTTP_REGEX.test(uri.trim());
+    },
+
+    getImageUrl(image){
+        let imageUrl = (image && image.uri) ? image.uri : '/static/images/default.jpg';
+        
+        imageUrl = !this.isRemoteImage(imageUrl) ? axios.defaults.baseURL + imageUrl : imageUrl;
+        return imageUrl;
     },
 
     getStatus(startDate, endDate){
@@ -51,8 +61,8 @@ export default {
     async completeContentInfo(contents = []){
         for(const content of contents) {
             content.vodEvents = (await api.getContentVodEvents(content.id)).items;
-            content.imageUrl = this.getImageUrl(content.id);
-            content.defaultImage = 'http://localhost:3000/static/images/default.jpg'
+            content.image = await api.getContentImage(content.id);
+            content.imageUrl = this.getImageUrl(content.image);
             content.hover = false;
             content.status = this.getCotentStatus(content.vodEvents);
         }
@@ -110,7 +120,7 @@ export default {
     },
 
     async searchContent(title) {
-        const contents = (await api.getContents([{title}])).items;
+        const contents = (await api.getContents({title})).items;
 
         return this.completeContentInfo(contents);
     },
@@ -125,6 +135,12 @@ export default {
         }
 
         return categories;
+    },
+
+    async searchImage(name) {
+        const images = (await api.getImages({name})).items;
+
+        return images;
     },
 
     async getMasterSeasons(id) {

@@ -20,7 +20,6 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickContentSearch"
-                        :isContent="true"
                     />
                 </div>
             </div>
@@ -35,14 +34,30 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickCategorySearch"
-                        :isContent="false"
+                        entityType="category"
+                    />
+                </div>
+            </div>
+            <div class="Block" v-if="home">
+                <Icon icon="image" :size="20" class="Creation" @click="$router.push('/image')"/>
+                <Icon icon="grid" :size="20" class="Creation" @click="$router.push('/image/grid')"/>
+                <div class="Search">
+                    <Input
+                        v-model="value"
+                        name="search"
+                        type="search"
+                        placeholder="Buscar imagen..."
+                        iconLeft="search"
+                        :width="350"
+                        :handleClick="handleClickImageSearch"
+                        entityType="image"
                     />
                 </div>
             </div>
             <div class="Block2" v-if="isCategory">
                 <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
                 <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
-                <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
+                <Icon icon="trash1" :size="20" class="Creation" @click="deleteConfirm(item)"/>
                 <div class="Search">
                     <Input
                         v-model="value"
@@ -52,14 +67,13 @@
                         iconLeft="search"
                         :width="350"
                         :handleClick="handleClickItem"
-                        :isContent="true"
                     />
                 </div>
             </div>
             <div class="Block2" v-if="isContent">
                 <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
                 <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
-                <Icon icon="trash1" :size="20" class="Creation" @click="deleteItem(item)"/>
+                <Icon icon="trash1" :size="20" class="Creation" @click="deleteConfirm(item)"/>
             </div>
         </div>
     </div>
@@ -97,6 +111,23 @@ export default {
         },
         handleClickCategorySearch (param) {
             this.$router.push({ name: 'section', params: { id: param.id } })
+        },
+        handleClickImageSearch (param) {
+            this.$router.push({ name: 'image', params: { id: param.id } })
+        },
+        deleteConfirm (item) {
+            const message = `¿Está seguro que desea borrar ` +
+                `${this.isCategory ? 'la categoría' : 'el contenido'} ${item.title || item.name}? \n` +
+                `Esta acción es irreversible.`,
+                options = {
+                    allowOutsideClick: false,
+                    background: '#222',
+                    confirmButtonColor: '#333',
+                    cancelButtonColor: '#333'
+                };
+            this.$confirm(message, null, null, options).then(() => {
+                return this.deleteItem(item);
+            });
         }
     },
 }
@@ -121,9 +152,9 @@ export default {
             display: flex;
 
             .Logo {
-                padding-right: 30px;
+                padding-right: 25px;
                 border-right: 1px solid $primary;
-                margin-right: 30px;
+                margin-right: 25px;
                 h1 {
                     color: $primary;
                     font-size: 50px;
@@ -147,7 +178,7 @@ export default {
         }
         .Block {
             display: flex;
-            padding: 20px 40px;
+            padding: 20px 35px;
             border-left: 1px solid $body-color;
             margin-left: 10px;
             .Creation {

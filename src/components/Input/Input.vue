@@ -71,7 +71,7 @@ export default {
             'yellow',
         ]).def('dark'),
         handleClick: VueTypes.func.isRequired,
-        isContent: VueTypes.bool.isRequired.def(true)
+        entityType: VueTypes.string.def('content')
     },
     data () {
         return {
@@ -90,9 +90,13 @@ export default {
     },
     methods: {
         async fetchResult (searchString) {
-            this.items = this.isContent ?
-                await utils.searchContent(searchString) :
-                await utils.searchCategory(searchString);
+            if (this.entityType === 'content') {
+                this.items = await utils.searchContent(searchString);
+            } else if (this.entityType === 'category') {
+                this.items = await utils.searchCategory(searchString);
+            } else if (this.entityType === 'image') {
+                this.items = await utils.searchImage(searchString);
+            }
         },
         nameOfCustomEventToCall () {
             this.items = [];

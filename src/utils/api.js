@@ -2,30 +2,10 @@ import axios from 'axios'
 
 export default {
 
-  buildQuery(args) {
-    let query = '?',
-      tmp = [];
-
-    for (const arg of args) {
-        for (const property in arg) {
-          const value = property + '=' + arg[property];
-          tmp.push(value);
-        }
-    }
-
-    query += tmp.join('&');
-
-    return query;
-  },
-
-  getContents (args) {
-    let query = '';
-
-    if (args && args.length) {
-      query = this.buildQuery(args);
-    }
-
-    return axios.get('/contents' + query)
+  getContents (params) {
+    return axios.get('/contents', {
+        params
+      })
       .then(response => {
         return response.data  && response.data.response
       })
@@ -47,6 +27,13 @@ export default {
 
   getContentWithoutCategories () {
     return axios.get('/contents/empty-categories')
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  getContentImage (id) {
+    return axios.get('/contents/' + id + '/image')
       .then(response => {
         return response.data  && response.data.response
       })
@@ -91,14 +78,10 @@ export default {
       })
   },
 
-  getCategoryContents (id, args) {
-    let query = '';
-
-    if (args && args.length) {
-      query = this.buildQuery(args);
-    }
-
-    return axios.get('/categories/' + id + '/contents' + query)
+  getCategoryContents (id, params) {
+    return axios.get('/categories/' + id + '/contents', {
+        params
+      })
       .then(response => {
         return response.data  && response.data.response
       })
@@ -180,6 +163,43 @@ export default {
 
   deleteVodEvent (id) {
     return axios.delete('/vod-events/' + id )
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  getImages (params) {
+    return axios.get('/images', {
+      params
+    })
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  getImage (id) {
+    return axios.get('/images/' + id)
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  createImage (body) {
+    return axios.post('/images', body)
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  deleteImage (id) {
+    return axios.delete('/images/' + id )
+      .then(response => {
+        return response.data  && response.data.response
+      })
+  },
+
+  updateImage (id, body) {
+    return axios.put('/images/' + id , body)
       .then(response => {
         return response.data  && response.data.response
       })

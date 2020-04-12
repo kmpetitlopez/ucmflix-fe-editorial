@@ -22,7 +22,7 @@
                 <div v-if="content.hover && hover" >
                     <div
                         class="ImgChild"
-                        :style="`background-image: url(${content.defaultImage});`"
+                        :style="`background-image: url(${content.imageUrl});`"
                     ></div>
                 </div>
                 <div class="InfoChild" v-if="!content.hover || !hover">
