@@ -41,9 +41,9 @@
                     </div>
                 </div>
                 <div class="ExternalSectionChild">
-                    <DetailHeader :filters="filtersVodEvent" :filter="filterVodEvents" title="Imagen" :search="true"/>
-                    <div class="Image"
-                        :style="{backgroundImage : `url('${content.imageUrl}')`  }" />
+                    <DetailHeader :filters="filtersVodEvent" :filter="filterVodEvents" title="Imagen" :search="true"
+                        :handleClickItem="handleClickItem"/>
+                    <div class="Image"  :style="{backgroundImage : `url('${content.imageUrl}')`}" />
                 </div>
             </div>
 
@@ -84,7 +84,8 @@ export default {
     data () {
         return {
             content: {
-                id: 0
+                id: 0,
+                imageUrl: ''
             },
             categories: [],
             filteredCategories: [],
@@ -263,6 +264,11 @@ export default {
             for (const filter in this.filtersVodEvent) {
                 this.filtersVodEvent[filter] = false;
             }
+        },
+        handleClickItem(image) {
+            this.content.imageUrl = utils.getImageUrl(image);
+            this.content.imageId = image.id;
+            console.log('aquiiii')
         }
     },
     async mounted () {

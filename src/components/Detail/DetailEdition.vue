@@ -2,7 +2,7 @@
     <div class="Edition">
                 <div class="Block">
                     <div>
-                        <p>Título</p>
+                        <p>Título de contenido</p>
                         <input v-model="content.title" type="text" class="Input">
                     </div>
                     <div>
@@ -18,7 +18,7 @@
                         <input v-model="content.genre" type="text" class="Input">
                     </div>
                     <div>
-                        <p>Duración</p>
+                        <p>Duración (min)</p>
                         <input v-model="content.duration" type="number" class="Input">
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                         <input v-model="content.year" type="number" class="Input">
                     </div>
                     <div>
-                        <p>País</p>
+                        <p>País (ISO 3166-1 alpha-3)</p>
                         <input v-model="content.country" type="text" class="Input">
                     </div>
                     <div>

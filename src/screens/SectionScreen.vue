@@ -11,7 +11,7 @@
 
             <div class="Edition">
                 <div>
-                    <p>Nombre</p>
+                    <p>Nombre de categoría</p>
                     <input v-model="category.name" type="text" required>
                 </div>
                 <div>
@@ -77,6 +77,7 @@ export default {
             if (this.sectionID || categoryId) {
                 this.category = await utils.getSectionScreenInfo(this.sectionID || categoryId);
             }
+            this.saveButton = false;
         },
         async saveItem (category) {
             try {
@@ -107,6 +108,7 @@ export default {
         },
         selectContent(content) {
             content.selected = !content.selected ? true : false;
+            content.title += '.';
         },
         async deleteContents() {
             this.category.contents = this.category.contents.filter((content) => !content.selected);
@@ -114,7 +116,7 @@ export default {
         
     },
     async mounted () {
-        await this.fetchResult()
+        await this.fetchResult();
         this.saveButton = false;
     },
     computed: {

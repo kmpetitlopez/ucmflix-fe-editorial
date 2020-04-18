@@ -65,6 +65,7 @@ export default {
             content.imageUrl = this.getImageUrl(content.image);
             content.hover = false;
             content.status = this.getCotentStatus(content.vodEvents);
+            content.fullName = content.title + ' | ' + content.id;
         }
         
         return contents;

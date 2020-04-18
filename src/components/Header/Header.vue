@@ -141,7 +141,7 @@ export default {
     top: 0px;
     height: 90px;
     background-color: $secondary;
-    z-index: 2;
+    z-index: 3;
     .Header {
         display: flex;
         flex-direction: row;

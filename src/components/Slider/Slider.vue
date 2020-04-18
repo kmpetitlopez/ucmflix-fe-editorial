@@ -11,8 +11,8 @@
         lazy
     >
         <vueper-slide 
-            v-for="(content, i) in contents" 
-            :key="i" :link="addLink ? ('/detail/' + content.id) : ''"
+            v-for="(content) in contents" 
+            :key="content.title" :link="addLink ? ('/detail/' + content.id) : ''"
             :class="{'Info': (!content.hover || !hover), 'Img': (content.hover && hover)}"
             @mouse-enter="onHoverEnter(content)"
             @mouse-leave="onHoverLeave(content)"
@@ -26,7 +26,7 @@
                     ></div>
                 </div>
                 <div class="InfoChild" v-if="!content.hover || !hover">
-                    <h2 class="InfoChildTitle">{{ content.title }} | {{content.id}}</h2>
+                    <h2 class="InfoChildTitle">{{ content.fullName}}</h2>
                     <Icon icon="check-square" 
                         :size="20" v-if="!addLink && content.selected" 
                         class="InfoChildSelected"
@@ -78,10 +78,14 @@ export default {
     },
     methods: {
         onHoverEnter (content) {
-            content.hover = true
+            if (this.hover) {
+                content.hover = true
+            }
         },
         onHoverLeave (content) {
-            content.hover = false
+            if (this.hover) {
+                content.hover = false
+            }
         }
     }
 }

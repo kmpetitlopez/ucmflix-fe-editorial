@@ -8,7 +8,7 @@
 
             <div class="Edition">
                 <div>
-                    <p>Nombre</p>
+                    <p>Nombre de imagen</p>
                     <input v-model="image.name" type="text" required>
                 </div>
                 <div>
