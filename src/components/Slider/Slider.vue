@@ -38,7 +38,6 @@
                         
                     />
                     <h4>{{ content.genre || 'Entretenimiento/Otros' }}</h4>
-                    <p>{{ content.description || '...' }}</p>
                     <footer>
                         <span>{{ content.year || '-' }}</span>
                         <span>{{ content.country || '-' }}</span>
@@ -132,8 +131,9 @@ export default {
                 footer {
                     color: $gray-04;
                     font-weight:bold;
-                    bottom: 10px;
+                    bottom: 5px;
                     position: absolute;
+                    font-size: 14px;
                     span{
                         padding: 10px;
                     }
