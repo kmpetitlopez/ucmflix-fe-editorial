@@ -19,7 +19,7 @@ export default {
 
     getStatus(startDate, endDate){
         const currentDate = moment.utc(),
-            isFuture = startDate && moment.utc(endDate).isAfter(currentDate),
+            isFuture = startDate && moment.utc(startDate).isAfter(currentDate),
             isActive = startDate && moment.utc(startDate).isSameOrBefore(currentDate) &&
                 (endDate === null || moment.utc(endDate).isAfter(currentDate));
         let status = isFuture ? 'programmed' : null;
