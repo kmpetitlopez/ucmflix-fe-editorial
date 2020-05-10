@@ -1,23 +1,16 @@
 {
   "name": "ucmflix",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "vue-cli-service serve"
   },
+  "author": "Kira Petit",
   "dependencies": {
     "axios": "^0.19.2",
-    "core-js": "^3.6.4",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "shaka-player": "^2.5.10",
     "vue": "^2.6.11",
-    "vue-carousel-3d": "^0.2.0",
     "vue-date-pick": "^1.3.0",
-    "vue-dropdowns": "^1.1.1",
-    "vue-fixed-header": "^3.2.14",
     "vue-router": "^3.1.6",
     "vue-simple-alert": "^1.1.1",
     "vue-toasted": "^1.1.28",
