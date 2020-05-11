@@ -44,16 +44,20 @@
                         <textarea rows="4" cols="50" v-model="content.description" class="BigInput"></textarea>
                     </div>
                 </div>
-                <div class="Block" v-if="content.type === 'episode'">
+                <div class="Block">
                     <div>
+                        <p>Asset</p>
+                        <input v-model="content.asset" type="text" class="Input">
+                    </div>
+                    <div v-if="content.type === constants.CONTENT_TYPES.episode">
                         <p>Serie Id</p>
                         <input v-model="content.masterId" type="number" class="Input">
                     </div>
-                    <div>
+                    <div v-if="content.type === constants.CONTENT_TYPES.episode">
                         <p>#Episodio</p>
                         <input v-model="content.episodeNumber" type="number" class="Input">
                     </div>
-                    <div>
+                    <div v-if="content.type === constants.CONTENT_TYPES.episode">
                         <p>#Temporada</p>
                         <input v-model="content.seasonNumber" type="number" class="Input">
                     </div>
@@ -62,44 +66,18 @@
 </template>
 
 <script>
-import VueTypes from 'vue-types'
+import VueTypes from 'vue-types';
+import constants from '@/utils/constants';
 
 export default {
     name: 'DetailEdition',
     props: {
         content: VueTypes.object.isRequired
     },
-    data () {
-        return {
-            contentTypes: [{
-                option: 'Película',
-                value: 'movie'
-            },
-            {
-                option: 'Serie',
-                value: 'master'
-            },
-            {
-                option: 'Episodio',
-                value: 'episode'
-            },
-            {
-                option: 'Especial',
-                value: 'special'
-            }],
-            parentalRatings: [
-               'SC',
-                'TP',
-                'Infantil',
-                '+7',
-                '+10',
-                '+12',
-                '+13',
-                '+16',
-                '+18',
-                'X'
-            ]
-        }
+    created: function () {
+        this.constants = constants.getConstants();
+        this.contentTypes = constants.getContentTypeOptions();
+        this.parentalRatings = this.constants.PARENTAL_RATINGS;
     }
 }
 </script>

@@ -82,6 +82,7 @@
 <script>
 import VueTypes from 'vue-types'
 import {Input, Icon} from '@/components';
+import constants from '@/utils/constants';
 
 export default {
     name: 'Header',
@@ -106,7 +107,7 @@ export default {
     },
     methods: {
         handleClickContentSearch (param) {
-            const name =  param.type === 'master' ? 'master' : 'detail';
+            const name =  param.type === this.constants.CONTENT_TYPES.master ? 'master' : 'detail';
             this.$router.push({ name, params: { id: param.id } })
         },
         handleClickCategorySearch (param) {
@@ -130,6 +131,9 @@ export default {
             });
         }
     },
+    created: function () {
+        this.constants = constants.getConstants();
+    }
 }
 </script>
 

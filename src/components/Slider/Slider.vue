@@ -27,25 +27,15 @@
                 </div>
                 <div class="InfoChild" v-if="!content.hover || !hover">
                     <h2 class="InfoChildTitle">{{ content.fullName}}</h2>
-                    <Icon icon="check-square" 
-                        :size="20" v-if="!addLink && content.selected" 
-                        class="InfoChildSelected"
-                        
-                    />
-                    <Icon icon="square" 
-                        :size="20" v-if="!addLink && !content.selected" 
-                        class="InfoChildUnselected"
-                        
-                    />
-                    <h4>{{ content.genre || 'Entretenimiento/Otros' }}</h4>
                     <footer>
-                        <span>{{ content.year || '-' }}</span>
-                        <span>{{ content.country || '-' }}</span>
-                        <span>{{ content.duration ? content.duration + 'min' : '-' }}</span>
-                        <span>{{ content.parentalRating || '-' }}</span>
-                        <Icon icon="x-circle" :size="20" v-if="content.status === 'expired'" />
-                        <Icon icon="tv" :size="20" v-if="content.status === 'active'" />
-                        <Icon icon="clock" :size="20" v-if="content.status === 'programmed'" />
+                        <span class="FooterChild" v-if="addLink">{{ content.year || '-' }}</span>
+                        <span class="FooterChild" v-if="addLink">{{ content.country || '-' }}</span>
+                        <span class="FooterChild" v-if="addLink">{{ content.duration ? content.duration + 'min' : '-' }}</span>
+                        <Icon icon="x-circle" :size="20" v-if="content.status === constants.STATUS.expired" class="FooterChild"/>
+                        <Icon icon="tv" :size="20" v-if="content.status === constants.STATUS.active" class="FooterChild"/>
+                        <Icon icon="clock" :size="20" v-if="content.status === constants.STATUS.programmed" class="FooterChild"/>
+                        <Icon icon="check-square" :size="20" v-if="!addLink && content.selected" class="InfoChildSelected"/>
+                        <Icon icon="square" :size="20" v-if="!addLink && !content.selected"/>
                     </footer>
                 </div>
             </template>
@@ -58,6 +48,7 @@ import VueTypes from 'vue-types'
 import { VueperSlides, VueperSlide } from 'vueperslides'
 import 'vueperslides/dist/vueperslides.css'
 import {Icon} from '@/components';
+import constants from '@/utils/constants'
 
 export default {
     name: 'Slider',
@@ -78,14 +69,17 @@ export default {
     methods: {
         onHoverEnter (content) {
             if (this.hover) {
-                content.hover = true
+                content.hover = true;
             }
         },
         onHoverLeave (content) {
             if (this.hover) {
-                content.hover = false
+                content.hover = false;
             }
         }
+    },
+    created: function () {
+        this.constants = constants.getConstants();
     }
 }
 </script>
@@ -134,24 +128,16 @@ export default {
                     bottom: 5px;
                     position: absolute;
                     font-size: 14px;
-                    span{
+                    .FooterChild{
                         padding: 10px;
+                    }
+                    .InfoChildSelected{
+                        color:$success
                     }
                 }
                 .InfoChildTitle{
                     display: inline-block;
                     
-                }
-                .InfoChildSelected{
-                    float: right;
-                    margin-right: 10px;
-                    margin-top: 5px;
-                    color:$success
-                }
-                .InfoChildUnselected{
-                    float: right;
-                    margin-right: 10px;
-                    margin-top: 5px;
                 }
             }
         }

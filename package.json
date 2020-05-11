@@ -2,7 +2,7 @@
   "name": "ucmflix",
   "version": "1.0.0",
   "scripts": {
-    "serve": "vue-cli-service serve"
+    "start": "vue-cli-service serve"
   },
   "author": "Kira Petit",
   "dependencies": {

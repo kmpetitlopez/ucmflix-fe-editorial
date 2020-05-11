@@ -1,7 +1,11 @@
 import api from './api'
+import constants from './constants'
 import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
+import url from 'url'
+
+const CONSTANTS = constants.getConstants();
 
 export default {
     isRemoteImage(uri = '') {
@@ -13,7 +17,7 @@ export default {
     getImageUrl(image){
         let imageUrl = (image && image.uri) ? image.uri : '/static/images/default.jpg';
         
-        imageUrl = !this.isRemoteImage(imageUrl) ? axios.defaults.baseURL + imageUrl : imageUrl;
+        imageUrl = !this.isRemoteImage(imageUrl) ? url.resolve(axios.defaults.baseURL, imageUrl) : imageUrl;
         return imageUrl;
     },
 
@@ -22,10 +26,10 @@ export default {
             isFuture = startDate && moment.utc(startDate).isAfter(currentDate),
             isActive = startDate && moment.utc(startDate).isSameOrBefore(currentDate) &&
                 (endDate === null || moment.utc(endDate).isAfter(currentDate));
-        let status = isFuture ? 'programmed' : null;
+        let status = isFuture ? CONSTANTS.STATUS.programmed : null;
 
         if (!status) {
-            status = isActive ? 'active' : 'expired';
+            status = isActive ? CONSTANTS.STATUS.active : CONSTANTS.STATUS.expired;
         }
         
         return status;
@@ -36,23 +40,23 @@ export default {
     },
 
     getCotentStatus(vodEvents = []){
-        let status = 'expired';
+        let status = CONSTANTS.STATUS.expired;
         let isProgrammed = false;
         
         for(const vodEvent of vodEvents) {
             status = this.getStatus(vodEvent.windowStartTime, vodEvent.windowEndTime);
 
-            if (status === 'active') {
+            if (status === CONSTANTS.STATUS.active) {
                 break;
             } 
             
-            if (status === 'programmed') {
+            if (status === CONSTANTS.STATUS.programmed) {
                 isProgrammed = true;
             }
         }
 
-        if (status !== 'active' && isProgrammed) {
-            status = 'programmed';
+        if (status !== CONSTANTS.STATUS.active && isProgrammed) {
+            status = CONSTANTS.STATUS.programmed;
         }
 
         return status;
@@ -247,13 +251,13 @@ export default {
             
             if (filters.programmed) {
                 programmed = items.filter((category) => {
-                    return category.status === 'programmed';
+                    return category.status === CONSTANTS.STATUS.programmed;
                 });
             }
 
             if (filters.active) {
                 active = items.filter((category) => {
-                    return category.status === 'active';
+                    return category.status === CONSTANTS.STATUS.active;
                 });
             }
 

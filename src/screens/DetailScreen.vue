@@ -61,7 +61,7 @@
 import { DetailHeader,DetailEdition, Header, Icon, Status, Slider } from '@/components'
 import utils from '@/utils/utils'
 import api from '@/utils/api'
-//import moment from 'moment'
+import constants from '@/utils/constants';
 import DatePick from 'vue-date-pick';
 import "@/theme/DataPicker.css";
 
@@ -103,34 +103,6 @@ export default {
                 active: false,
                 programmed: false
             },
-            contentTypes: [{
-                option: 'Película',
-                value: 'movie'
-            },
-            {
-                option: 'Serie',
-                value: 'master'
-            },
-            {
-                option: 'Episodio',
-                value: 'episode'
-            },
-            {
-                option: 'Especial',
-                value: 'special'
-            }],
-            parentalRatings: [
-               'SC',
-                'TP',
-                'Infantil',
-                '+7',
-                '+10',
-                '+12',
-                '+13',
-                '+16',
-                '+18',
-                'X'
-            ],
             toastOptions: {
                 position: 'top-center',
                 duration: 3000
@@ -165,7 +137,7 @@ export default {
                 this.contentCategories = (await api.getContentCategories(this.contentId || contentId)).items;
                 this.contentVodEvents = await utils.getContentVodEvents(this.contentId || contentId);
 
-                if (this.content.type === 'master') {
+                if (this.content.type === this.constants.CONTENT_TYPES.master) {
                     this.seasons = await utils.getMasterSeasons(this.contentId || contentId);
                 }
             }
@@ -268,13 +240,15 @@ export default {
         handleClickItem(image) {
             this.content.imageUrl = utils.getImageUrl(image);
             this.content.imageId = image.id;
-            console.log('aquiiii')
         }
     },
     async mounted () {
         await this.fetchResult()
         this.saveButton = false;
     },
+    created: function () {
+        this.constants = constants.getConstants();
+    }
 }
 </script>
 <style lang="scss" scoped>
