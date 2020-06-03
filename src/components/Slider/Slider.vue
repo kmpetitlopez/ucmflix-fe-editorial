@@ -3,7 +3,7 @@
         class="SliderSectionSlides"
         :arrowsOutside="false"
         :bullets="false"
-        :visible-slides="7"
+        :visible-slides="6"
         :fixed-height="true"
         :gap="1"
         :touchable="false"

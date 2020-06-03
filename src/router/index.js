@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import { MainScreen, NotFoundScreen, 
     HomePageScreen, SectionScreen, 
-    DetailScreen, ImageEditionScreen, ImageGridScreen } from '@/screens'
+    DetailScreen, ImageEditionScreen,
+    ImageGridScreen, LoginScreen } from '@/screens'
 
 Vue.use(Router)
 
@@ -19,6 +20,11 @@ const router = new Router({
                     component: HomePageScreen,
                 },
             ],
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: LoginScreen,
         },
         {
             path: '*',

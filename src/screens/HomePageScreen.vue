@@ -1,6 +1,6 @@
 <template>
     <div class="HomepageScreen">
-        <Header />
+        <Header2 />
 
         <div class="Content">
             <div class="Section">
@@ -34,14 +34,14 @@
 </template>
 
 <script>
-import { Slider, Header, Status } from '@/components'
+import { Slider, Header2, Status } from '@/components'
 import utils from '@/utils/utils'
 
 export default {
     name: 'HomepageScreen',
     components: {
         Slider,
-        Header,
+        Header2,
         Status
     },
     data () {
@@ -55,12 +55,16 @@ export default {
             this.$router.push({ name: 'section', params: { id: param } })
         },
         async fetchResult () {
-            this.categories = await utils.getHomeScreenInfo();
             this.contentWithoutCategory = await utils.getContentWithoutCategories();
+            this.categories = await utils.getHomeScreenInfo();
         }
     },
     mounted () {
-        this.fetchResult()
+        if (!this.$store.getters.isLoggedIn) {
+            this.$router.push('/login');
+        } else {
+            this.fetchResult()
+        }
     }
 }
 </script>

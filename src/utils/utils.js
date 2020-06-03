@@ -2,8 +2,6 @@ import api from './api'
 import constants from './constants'
 import _ from 'lodash'
 import moment from 'moment'
-import axios from 'axios'
-import url from 'url'
 
 const CONSTANTS = constants.getConstants();
 
@@ -17,7 +15,6 @@ export default {
     getImageUrl(image){
         let imageUrl = (image && image.uri) ? image.uri : '/static/images/default.jpg';
         
-        imageUrl = !this.isRemoteImage(imageUrl) ? url.resolve(axios.defaults.baseURL, imageUrl) : imageUrl;
         return imageUrl;
     },
 

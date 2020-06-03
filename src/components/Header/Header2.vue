@@ -9,29 +9,53 @@
                     <h2>editorial</h2>
                 </div>
             </div>
-            <div class="Block2" v-if="isCategory">
-                <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
-                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
-                <Icon icon="trash1" :size="20" class="Creation" @click="deleteConfirm(item)"/>
+                
+            <div class="Block" v-if="home && !isLogin">
+                <Icon icon="file-plus" :size="20" class="Creation" @click="$router.push('/detail')"/>
                 <div class="Search">
                     <Input
                         v-model="value"
                         name="search"
                         type="search"
-                        placeholder="Asociar Contenido..."
+                        placeholder="Buscar contenido..."
                         iconLeft="search"
-                        :width="300"
-                        :handleClick="handleClickItem"
+                        :width="220"
+                        :handleClick="handleClickContentSearch"
                     />
                 </div>
-                <Icon v-if="!isLogin" icon="logout" :size="20" class="Buttons" @click="logout"/>
             </div>
-            <div class="Block2" v-if="isContent">
-                <p class="Information"><span>ID: </span>{{item.id || '-'}}</p>
-                <Icon icon="save" :size="20" class="Creation" @click="saveItem(item)" :class="{CreationActive: saveButton}"/>
-                <Icon icon="trash1" :size="20" class="Creation" @click="deleteConfirm(item)"/>
-                <Icon v-if="!isLogin" icon="logout" :size="20" class="Buttons" @click="logout"/>
+            <div class="Block" v-if="home && !isLogin">
+                <Icon icon="folder-plus" :size="20" class="Creation" @click="$router.push('/section')"/>
+                <div class="Search">
+                    <Input
+                        v-model="value"
+                        name="search"
+                        type="search"
+                        placeholder="Buscar categoría..."
+                        iconLeft="search"
+                        :width="220"
+                        :handleClick="handleClickCategorySearch"
+                        entityType="category"
+                    />
+                </div>
             </div>
+            <div class="Block" v-if="home && !isLogin">
+                <Icon icon="image" :size="20" class="Creation" @click="$router.push('/image')"/>
+                <Icon icon="grid" :size="20" class="Creation" @click="$router.push('/image/grid')"/>
+                <div class="Search">
+                    <Input
+                        v-model="value"
+                        name="search"
+                        type="search"
+                        placeholder="Buscar imagen..."
+                        iconLeft="search"
+                        :width="220"
+                        :handleClick="handleClickImageSearch"
+                        entityType="image"
+                    />
+                </div>
+            </div>
+            <Icon v-if="!isLogin" icon="logout" :size="20" class="Buttons" @click="logout"/>
         </div>
     </div>
 </template>
@@ -144,13 +168,25 @@ export default {
                 }
             }
         }
+        .Block {
+            display: flex;
+            padding: 20px 15px;
+            margin-left: 10px;
+            .Creation {
+                padding: 6px 5px;
+                border: 1px solid $gray-04;
+                border-radius: 4px;
+                cursor: pointer;
+                color : $gray-02;
+                font-size: 15px;
+                text-align: center;
+                margin-right: 10px;
+            }
+        }
         .Block2 {
             display: flex;
             padding: 20px 40px;
             margin-left: 10px;
-            .Search {
-                margin-right: 10px;
-            }
             .Creation {
                 padding: 6px 5px;
                 border: 1px solid $gray-04;

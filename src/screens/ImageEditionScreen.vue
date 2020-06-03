@@ -18,16 +18,13 @@
             </div>
 
             <div class="Image"
-                :style="{backgroundImage : `url('${image.url}')`  }" />
+                :style="{backgroundImage : `url('${image.uri}')`  }" />
     </div>
 </template>
 
 <script>
 import {  Header } from '@/components'
 import api from '@/utils/api'
-import utils from '@/utils/utils'
-import url from 'url'
-import axios from 'axios'
 
 export default {
     name: 'ImageEditionScreen',
@@ -52,8 +49,6 @@ export default {
             deep: true,
             handler() {
                 this.saveButton = true;
-                this.image.url = !utils.isRemoteImage(this.image.uri) ? 
-                    axios.defaults.baseURL + this.image.uri : this.image.uri;
             }
         }
     },
@@ -66,17 +61,14 @@ export default {
                 this.image = await api.getImage(this.imageId || imageId);
 
                 this.image.uri = this.image.uri ? this.image.uri : this.defaultImage;
-                this.image.url = !utils.isRemoteImage(this.image.uri) ? 
-                    axios.defaults.baseURL + this.image.uri : this.image.uri;
             }
         },
         async saveItem (image) {
             try {
-                const message = `Imagen ${this.imageId ? 'actualizada' : 'creada'} correctamente`,
-                    defaultUrl = url.parse(this.defaultImage);
+                const message = `Imagen ${this.imageId ? 'actualizada' : 'creada'} correctamente`;
                 let newImage;
 
-                image.uri = image.uri ? image.uri : defaultUrl.path;
+                image.uri = image.uri ? image.uri : this.defaultImage;
                 
                 if (this.imageId) {
                     newImage = await api.updateImage(this.imageId, image);
@@ -109,8 +101,12 @@ export default {
         
     },
     async mounted () {
-        await this.fetchResult()
-        this.saveButton = false;
+        if (!this.$store.getters.isLoggedIn) {
+            this.$router.push('/login');
+        } else {
+            await this.fetchResult()
+            this.saveButton = false;
+        }
     },
     computed: {
         imageId() {
@@ -140,14 +136,14 @@ export default {
     .Edition {
         padding: 50px;
         div{
-            width: 500px;
+            width: 300px;
             padding: 10px;
             display: inline-block;
         }
         input{
             padding: 5px;
             min-height: 35px;
-            width: 300px;
+            width: 270px;
             border: 1px solid $gray-04;
             border-radius: 4px;
             background: transparent;

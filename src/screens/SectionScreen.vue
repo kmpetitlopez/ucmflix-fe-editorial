@@ -39,6 +39,7 @@ import {  Header, Icon, Slider } from '@/components'
 import utils from '@/utils/utils'
 import DatePick from 'vue-date-pick';
 import "@/theme/DataPicker.css";
+import _ from 'lodash'
 
 export default {
     name: 'SectionScreen',
@@ -58,14 +59,15 @@ export default {
                 position: 'top-center',
                 duration: 3000
             },
-            saveButton: false
+            saveButton: false,
+            originalValues: {}
         }
     },
      watch: {
         category: {
             deep: true,
             handler() {
-                this.saveButton = true;
+                this.activateSaveButton();
             }
         }
     },
@@ -76,6 +78,7 @@ export default {
         async fetchResult (categoryId) {
             if (this.sectionID || categoryId) {
                 this.category = await utils.getSectionScreenInfo(this.sectionID || categoryId);
+                this.originalValues = _.clone(this.category);
             }
             this.saveButton = false;
         },
@@ -112,12 +115,51 @@ export default {
         },
         async deleteContents() {
             this.category.contents = this.category.contents.filter((content) => !content.selected);
+        },
+        activateSaveButton() {
+            const contents = _.clone(this.category.contents),
+                contentsDifferentLength = contents.length !== this.originalValues.contents.length,
+                excludeProperties = ['contents', 'updatedAt', 'createdAt', 'status'];
+
+            this.saveButton = false;
+
+            if (contentsDifferentLength) {
+                this.saveButton = true;
+            }
+
+            for (const content of this.originalValues.contents) {
+                const isInContents = contents.find((ref) => {
+                    return content.id === ref.id;
+                });
+
+                if (!isInContents) {
+                    this.saveButton = true;
+                    break;
+                }
+            }
+
+            for (const key in this.originalValues) {
+                if (Object.prototype.hasOwnProperty.call(this.originalValues, key)) {
+                    const exclude = excludeProperties.find((ref) => {
+                        return ref === key;
+                    });
+
+                    if (!exclude && this.originalValues[key] !== this.category[key]) {
+                        this.saveButton = true;
+                        break;
+                    }
+                }
+            }
         }
         
     },
     async mounted () {
-        await this.fetchResult();
-        this.saveButton = false;
+        if (!this.$store.getters.isLoggedIn) {
+            this.$router.push('/login');
+        } else {
+            await this.fetchResult()
+            this.saveButton = false;
+        }
     },
     computed: {
         sectionID() {
@@ -147,14 +189,14 @@ export default {
     .Edition {
         padding: 50px;
         div{
-            width: 500px;
+            width: 300px;
             padding: 10px;
             display: inline-block;
         }
         input{
             padding: 5px;
             min-height: 35px;
-            width: 300px;
+            width: 270px;
             border: 1px solid $gray-04;
             border-radius: 4px;
             background: transparent;
@@ -170,7 +212,7 @@ export default {
             padding: 10px;
         }
         .DatePicker{
-            width: 300px;
+            width: 270px;
             border: 1px solid $gray-04;
             border-radius: 4px;
             background: transparent;

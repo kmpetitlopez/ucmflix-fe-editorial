@@ -39,7 +39,7 @@
                         <p>País (ISO 3166-1 alpha-3)</p>
                         <input v-model="content.country" type="text" class="Input">
                     </div>
-                    <div>
+                    <div class="flex">
                         <p>Descripción</p>
                         <textarea rows="4" cols="50" v-model="content.description" class="BigInput"></textarea>
                     </div>
@@ -88,15 +88,19 @@ export default {
 .Edition {
     padding: 50px;
     .Block {
+        display: flex;
+        align-items: flex-end;
+        height: fit-content;
+        justify-content: space-between;
         div{
-            width: 350px;
+            width: 300px;
             padding: 20px 10px;
-            height: 50px;
             display: inline-block;
         }
         .Input{
-            padding: 5px;
+            padding: 5px 10px;
             width: 300px;
+            height: 25px;
             border: 1px solid $gray-04;
             border-radius: 4px;
             background: transparent;
@@ -111,11 +115,12 @@ export default {
         .Input:focus{
             outline: none;
         }
-        input{
-            height: 25px;
+        select {
+            height: 35px !important;
+            padding: 5px !important;
         }
         .BigInput{
-            padding: 0px 5px;
+            padding: 10px;
             min-height: 50px;
             width: 300px;
             border: 1px solid $gray-04;

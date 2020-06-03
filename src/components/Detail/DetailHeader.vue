@@ -1,5 +1,5 @@
 <template>
-    <div class="Parent">
+    <div class="DetailHeader">
         <h2 class="Header">{{title}}</h2>
         <Icon icon="check-square" :size="20" :clickable="true" @click="filter('select')" class="Header"
             :class="{HeaderActive: filters.select}" v-if="!search"/>
@@ -55,7 +55,7 @@ export default {
 <style scoped lang="scss">
 @import "@/theme/_variables.scss";
 
-.Parent {
+.DetailHeader {
     position: sticky;
     z-index: 2;
     .Header {

@@ -7,11 +7,11 @@
                     class="Images"
                     v-for="(image, i) in images"
                     :key="i"
-                    :style="{backgroundImage : `url('${image.url}')`  }"
+                    :style="`background-image: url(${image.uri});`"
                     @click="handleClickOnImage(image)"
                 >
                     <div class="ImagesText">
-                        <div>{{image.name}} | {{image.uri}}</div>
+                        <p>{{image.name}}</p>
                     </div>
                     
                 </div>
@@ -23,8 +23,6 @@
 <script>
 import {  Header } from '@/components'
 import api from '@/utils/api'
-import utils from '@/utils/utils'
-import axios from 'axios'
 
 export default {
     name: 'ImageGridScreen',
@@ -46,13 +44,15 @@ export default {
 
             for (const image of this.images) {
                 image.uri = image.uri ? image.uri : this.defaultImage;
-                image.url = !utils.isRemoteImage(image.uri) ? 
-                    axios.defaults.baseURL + image.uri : image.uri;
             }
         }
     },
     async mounted () {
-        await this.fetchResult()
+        if (!this.$store.getters.isLoggedIn) {
+            this.$router.push('/login');
+        } else {
+            await this.fetchResult()
+        }
     }
 }
 </script>
@@ -68,7 +68,7 @@ export default {
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
         margin: 0px 60px;
         grid-row-gap: 30px;
-        grid-column-gap: 30px;
+        grid-column-gap: 15px;
 
         .Images {
             position: relative;
@@ -83,7 +83,9 @@ export default {
                 position: absolute;
                 bottom: 0px;
                 width: 100%;
-                padding: 5px 2px;
+                p {
+                padding: 8px;
+                }
             }
         }
     }

@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from '@/router'
-import axios from 'axios'
+import store from '@/store'
+import VueCookies from "vue-cookies"
 import Toasted from 'vue-toasted';
 import VueSimpleAlert from "vue-simple-alert";
 
-axios.defaults.baseURL = 'http://localhost:3000'
-
 Vue.use(Toasted)
 Vue.use(VueSimpleAlert);
+Vue.use(VueCookies)
 
 Vue.directive('click-outside', {
     bind: function (el, binding, vnode) {
@@ -28,6 +28,7 @@ Vue.directive('click-outside', {
 
 const app = new Vue({
     router,
+    store,
     render: h => h(App)
 }).$mount('#app')
 

@@ -5,7 +5,8 @@
                 :isContent="true"
                 :item="content"
                 :saveItem="saveItem"
-                :deleteItem="deleteItem" :key="content.id" :saveButton="saveButton"/>
+                :deleteItem="deleteItem" :key="content.id" :saveButton="saveButton"
+            />
 
             <DetailEdition :content="content"/>
             
@@ -64,6 +65,7 @@ import api from '@/utils/api'
 import constants from '@/utils/constants';
 import DatePick from 'vue-date-pick';
 import "@/theme/DataPicker.css";
+import _ from 'lodash'
 
 export default {
     name: 'DetailScreen',
@@ -107,26 +109,34 @@ export default {
                 position: 'top-center',
                 duration: 3000
             },
-            saveButton: false
+            saveButton: false,
+            originalValues: {
+                content: {
+                    id: 0,
+                    imageUrl: ''
+                },
+                categories: [],
+                vodEvents: []
+            }
         }
     },
     watch: {
         content: {
             deep: true,
             handler() {
-                this.saveButton = true;
+                this.activateSaveButton();
             }
         },
         contentVodEvents: {
             deep: true,
             handler() {
-                this.saveButton = true;
+                this.activateSaveButton();
             }
         },
         categories: {
             deep: true,
             handler() {
-                this.saveButton = true;
+                this.activateSaveButton();
             }
         }
     },
@@ -136,6 +146,10 @@ export default {
                 this.content = await utils.getDetailScreenInfo(this.contentId || contentId);
                 this.contentCategories = (await api.getContentCategories(this.contentId || contentId)).items;
                 this.contentVodEvents = await utils.getContentVodEvents(this.contentId || contentId);
+
+                this.originalValues.content = _.clone(this.content);
+                this.originalValues.categories = _.clone(this.contentCategories);
+                this.originalValues.vodEvents = _.clone(this.contentVodEvents);
 
                 if (this.content.type === this.constants.CONTENT_TYPES.master) {
                     this.seasons = await utils.getMasterSeasons(this.contentId || contentId);
@@ -240,11 +254,67 @@ export default {
         handleClickItem(image) {
             this.content.imageUrl = utils.getImageUrl(image);
             this.content.imageId = image.id;
+        },
+        activateSaveButton() {
+            const categories = this.categories.filter((cat) => cat.selected),
+                categoriesDifferentLength = categories.length !== this.originalValues.categories.length,
+                vodEventsDifferentLength = this.contentVodEvents.length !== this.originalValues.vodEvents.length,
+                excludeProperties = ['contents', 'updatedAt', 'createdAt', 'fullName', 'hover',
+                    'image', 'imageUrl', 'status', 'vodEvents'];
+
+            this.saveButton = false;
+
+            if (categoriesDifferentLength) {
+                this.saveButton = true;
+            }
+
+            if (vodEventsDifferentLength) {
+                this.saveButton = true;
+            }
+
+            for (const key in this.originalValues.content) {
+                if (Object.prototype.hasOwnProperty.call(this.originalValues.content, key)) {
+                    const exclude = excludeProperties.find((ref) => {
+                        return ref === key;
+                    });
+
+                    if (!exclude && this.originalValues.content[key] != this.content[key]) {
+                        this.saveButton = true;
+                        break;
+                    }
+                }
+            }
+
+            for (const vodEvent of this.originalValues.vodEvents) {
+                const isInVodEvents = this.contentVodEvents.find((ref) => {
+                    return vodEvent.id === ref.id;
+                });
+
+                if (!isInVodEvents) {
+                    this.saveButton = true;
+                    break;
+                }
+            }
+
+            for (const category of this.originalValues.categories) {
+                const isInCategories = categories.find((ref) => {
+                    return category.categoryId === ref.id;
+                });
+
+                if (!isInCategories) {
+                    this.saveButton = true;
+                    break;
+                }
+            }
         }
     },
     async mounted () {
-        await this.fetchResult()
-        this.saveButton = false;
+        if (!this.$store.getters.isLoggedIn) {
+            this.$router.push('/login');
+        } else {
+            await this.fetchResult()
+            this.saveButton = false;
+        }
     },
     created: function () {
         this.constants = constants.getConstants();
@@ -267,9 +337,9 @@ export default {
             grid-template-columns: 1fr 1fr 1fr;
             margin: 0px 60px;
             grid-row-gap: 30px;
-            grid-column-gap: 30px;
+            grid-column-gap: 20px;
             .ExternalSectionChild {
-                height: 450px;
+                white-space: nowrap;
                 .CategoryBox {
                     border: 1px solid $black-light;
                     border-radius: 4px;
@@ -280,6 +350,7 @@ export default {
                         .CategoryItemChild{
                             display: inline-block;
                             margin-left: 10px;
+                            white-space: nowrap;
                         }
                         .CategoryItemChildSelected {
                             display: inline-block;
@@ -299,6 +370,7 @@ export default {
                     
                     .VodEventItem{
                         height: 40px;
+                        white-space: nowrap;
                         .VodEventItemChild{
                             display: inline-block;
                             margin-left: 10px;
@@ -310,6 +382,7 @@ export default {
                         }
                         .DatePicker{
                             z-index: 2;
+                            width: 120px;
                             display: inline-block;
                             margin-left: 10px;
                             margin-top: 10px;
@@ -324,6 +397,7 @@ export default {
                     height: 300px;
                     background-size: cover;
                     background-repeat: no-repeat;
+                    margin-top: 10px;
                 }
             }
         }
